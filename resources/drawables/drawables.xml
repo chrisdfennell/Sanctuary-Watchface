@@ -1,4 +1,4 @@
 <drawables xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
     <bitmap id="LauncherIcon" filename="launcher_icon.svg" dithering="none" />
-    <bitmap id="diablo_background" filename="diablo_background.jpg" dithering="none" />
+    <bitmap id="diablo_background" filename="diablo_background.png" dithering="none" />
 </drawables>
