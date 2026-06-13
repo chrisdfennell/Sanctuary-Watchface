@@ -1,0 +1,12 @@
+<resources>
+    <!--
+        Exocet bitmap fonts (the Diablo typeface), generated from the source TTFs in
+        fonts-src/ by tools/gen_fonts.py. Re-run that script if you change sizes or
+        glyph sets. Each .fnt references its own .png atlas in this folder.
+    -->
+    <fonts>
+        <font id="ExocetTime"  filename="exocet_time.fnt"  antialias="true" />
+        <font id="ExocetValue" filename="exocet_value.fnt" antialias="true" />
+        <font id="ExocetLabel" filename="exocet_label.fnt" antialias="true" />
+    </fonts>
+</resources>

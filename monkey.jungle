@@ -1,0 +1,9 @@
+project.manifest = manifest.xml
+
+# Default resource paths
+base.resourcePath = resources
+
+# Device-specific resource paths for high-res AMOLED displays
+fenix847mm.resourcePath = $(base.resourcePath);resources-round-454x454
+fenix8pro47mm.resourcePath = $(base.resourcePath);resources-round-454x454
+fenix843mm.resourcePath = $(base.resourcePath);resources-round-416x416
