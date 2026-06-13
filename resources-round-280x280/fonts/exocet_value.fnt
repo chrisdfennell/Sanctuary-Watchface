@@ -1,0 +1,17 @@
+info face="exocet_value" size=26 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1 outline=0
+common lineHeight=31 base=23 scaleW=128 scaleH=64 pages=1 packed=0 alphaChnl=1 redChnl=4 greenChnl=4 blueChnl=4
+page id=0 file="exocet_value.png"
+chars count=12
+char id=48 x=2 y=2 width=22 height=16 xoffset=0 yoffset=7 xadvance=22 page=0 chnl=15
+char id=49 x=26 y=2 width=13 height=15 xoffset=0 yoffset=8 xadvance=13 page=0 chnl=15
+char id=50 x=41 y=2 width=16 height=16 xoffset=0 yoffset=7 xadvance=16 page=0 chnl=15
+char id=51 x=59 y=2 width=16 height=15 xoffset=0 yoffset=8 xadvance=16 page=0 chnl=15
+char id=52 x=77 y=2 width=16 height=16 xoffset=0 yoffset=7 xadvance=16 page=0 chnl=15
+char id=53 x=95 y=2 width=16 height=15 xoffset=0 yoffset=8 xadvance=16 page=0 chnl=15
+char id=54 x=2 y=20 width=16 height=15 xoffset=0 yoffset=8 xadvance=16 page=0 chnl=15
+char id=55 x=20 y=20 width=16 height=16 xoffset=0 yoffset=8 xadvance=16 page=0 chnl=15
+char id=56 x=38 y=20 width=16 height=16 xoffset=0 yoffset=7 xadvance=16 page=0 chnl=15
+char id=57 x=56 y=20 width=16 height=16 xoffset=0 yoffset=7 xadvance=16 page=0 chnl=15
+char id=37 x=74 y=20 width=21 height=16 xoffset=0 yoffset=7 xadvance=21 page=0 chnl=15
+char id=45 x=97 y=20 width=14 height=11 xoffset=0 yoffset=12 xadvance=14 page=0 chnl=15
+kernings count=0

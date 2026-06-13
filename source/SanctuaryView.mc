@@ -35,6 +35,7 @@ class SanctuaryView extends WatchUi.WatchFace {
 
     // --- State ---
     private var mIsSleep as Boolean = false;
+    private var mLowPower as Boolean = false;  // true only on AMOLED in Always-On (burn-in) mode
     private var mLastMin as Number = -1;       // throttles low-power partial updates
 
     // --- Settings (see resources/settings) ---
@@ -149,8 +150,10 @@ class SanctuaryView extends WatchUi.WatchFace {
         var w = mWidth;
         var h = mHeight;
 
-        // AMOLED burn-in protection: in always-on mode shift all lit pixels a few
-        // px each minute and never paint large bright fills (handled per-element).
+        // Reduced / burn-in-safe rendering applies ONLY to AMOLED panels in Always-On
+        // mode. MIP / transflective panels (e.g. tactix 8 Solar) have no burn-in and
+        // sit in low-power most of the time while STILL showing the full face, so they
+        // must always render the full layout - never the dimmed variant.
         var burnIn = false;
         var dx = 0;
         var dy = 0;
@@ -162,6 +165,7 @@ class SanctuaryView extends WatchUi.WatchFace {
             else if (phase == 2) { dx = -3; dy = 4; }
             else if (phase == 3) { dx = 3;  dy = -4; }
         }
+        mLowPower = burnIn;   // drives the dim/thin render path used below
 
         var cx = mCenterX + dx;
         var cy = mCenterY + dy;
@@ -170,8 +174,9 @@ class SanctuaryView extends WatchUi.WatchFace {
         dc.setColor(BG_COLOR, BG_COLOR);
         dc.clear();
 
-        // Draw Diablo-inspired background in active mode.
-        if (!mIsSleep && !burnIn && mBackground != null) {
+        // Draw the Diablo background art in full-power mode. (MIP devices have no
+        // background asset - only the 1x1 base placeholder - so they stay solid black.)
+        if (!mLowPower && mBackground != null) {
             dc.drawBitmap(0, 0, mBackground);
         }
 
@@ -247,7 +252,7 @@ class SanctuaryView extends WatchUi.WatchFace {
         var timeStr = hourStr + ":" + min.format("%02d");
 
         // Dim in AOD (fewer lit pixels), bright otherwise.
-        dc.setColor(mIsSleep ? 0x6E6E6E : 0xF2F2F2, Graphics.COLOR_TRANSPARENT);
+        dc.setColor(mLowPower ? 0x6E6E6E : 0xF2F2F2, Graphics.COLOR_TRANSPARENT);
         dc.drawText(cx, cy, mFontTime, timeStr,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
     }
@@ -341,7 +346,7 @@ class SanctuaryView extends WatchUi.WatchFace {
     function drawGlobe(dc as Dc, gx as Number, gy as Number, r as Number,
                        value as Number, available as Boolean,
                        bright as Number, dark as Number, rim as Number, glow as Number) as Void {
-        if (mIsSleep) {
+        if (mLowPower) {
             drawGlobeLowPower(dc, gx, gy, r, value, available, rim);
             return;
         }
@@ -439,7 +444,7 @@ class SanctuaryView extends WatchUi.WatchFace {
         if (frac > 1.0) { frac = 1.0; }
         var fw = (barW * frac).toNumber();
 
-        if (mIsSleep) {
+        if (mLowPower) {
             // Thin dim outline + thin progress line (no bright fills).
             dc.setPenWidth(1);
             dc.setColor(C_XP_BORDER, Graphics.COLOR_TRANSPARENT);

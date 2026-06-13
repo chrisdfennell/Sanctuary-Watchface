@@ -55,8 +55,13 @@ jobs:
             -y developer_key.der \
             -o bin/Sanctuary.iq
 
-          # Side-loadable .prg for each tactix 8 (Fenix 8 AMOLED) case size.
-          for device in fenix847mm fenix843mm; do
+          # Side-loadable .prg for every supported product:
+          #   fenix847mm       AMOLED 454 (fenix/tactix/quatix 8 47mm AND 51mm)
+          #   fenix843mm       AMOLED 416 (fenix 8 43mm)
+          #   fenix8pro47mm    AMOLED 454 (fenix 8 Pro)
+          #   fenix8solar51mm  MIP 280 (tactix/fenix 8 Solar 51mm)
+          #   fenix8solar47mm  MIP 260 (fenix 8 Solar 47mm)
+          for device in fenix847mm fenix843mm fenix8pro47mm fenix8solar51mm fenix8solar47mm; do
             echo "Compiling .prg for $device..."
             java -jar /connectiq/bin/monkeybrains.jar \
               -f monkey.jungle \

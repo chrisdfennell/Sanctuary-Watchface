@@ -1,0 +1,51 @@
+========================================================================
+GARMIN CONNECT IQ STORE LISTING INFO - NIMBUS DIGITAL WATCH FACE
+========================================================================
+
+------------------------------------------------------------------------
+FIELD: Title (Max 30 characters)
+------------------------------------------------------------------------
+Nimbus Digital Weather Face
+
+
+------------------------------------------------------------------------
+FIELD: Description (Max 8000 characters)
+------------------------------------------------------------------------
+Nimbus Digital is a premium, data-driven, weather-first watch face for your Garmin smartwatch. Designed as a clean and high-density information dashboard, it provides everything you need for your day at a single glance, without cluttered configurations.
+
+Key Features:
+- Large, high-visibility digital clock featuring a split-color layout (hour in accent theme, minutes in white/silver).
+- Prominent live weather module featuring real-time temperature, daily high/low forecast, current conditions, and secondary weather metrics (precipitation %, relative humidity, wind speed).
+- Clean and scalable vector-drawn procedural weather icons (Clear, Cloudy, Rainy, Snowy, Stormy, Windy, Foggy, Mixed).
+- Fully integrated 5-day daily forecast rows showing daily conditions and temperature ranges.
+- Active sensor readings: steps count and real-time heart rate (BPM) tracking.
+- 4-column activity footer: Calories burned, Distance traveled, Floors climbed, and Active minutes.
+- Comprehensive status header: Battery (with color-coded battery icon), solar intensity charging rate, Bluetooth connection state, notifications/DND, and active alarms.
+- Clean and efficient Always-On-Display (AOD) sleep layout with pixel-shifting burn-in protection.
+- Customization: 8 premium color themes (Midnight Gold, Rose Gold, Arctic Teal, Ember Orange, Forest Green, Lavender Mist, Pearl Silver, Solar Amber) and a seconds hand display toggle.
+
+
+------------------------------------------------------------------------
+FIELD: What's New in this Version (Max 8000 characters)
+------------------------------------------------------------------------
+Initial Release:
+- Premium digital layout with split-color digital clock.
+- Integrated weather module with live metrics (precipitation, wind speed, humidity).
+- Vector-drawn weather icon rendering.
+- 5-day forecast grid with daily weather states.
+- 4-column activity tracking grid (CAL, DIST, FLOORS, ACTIVE).
+- Smart status bar with battery, notifications, alarm, connection, and solar charge indicators.
+- Power-saving Always-On-Display (AOD) mode with pixel-shifting burn-in protection.
+
+
+------------------------------------------------------------------------
+FIELD: Settings (Select Yes/No as indicated)
+------------------------------------------------------------------------
+Category: Watch Faces
+Subcategory: Digital
+ANT+ Profiles: No
+Regional Limits: No
+Monetization: No
+Do you collect personal or sensitive data?: No
+Is this app designed for a specific company or event?: No
+========================================================================

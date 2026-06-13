@@ -4,7 +4,26 @@ All notable changes to Sanctuary are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project aims to
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.1]
+
+### Added
+- **MIP / Solar support** for the tactix 8 Solar Elite (`fenix8solar51mm`, 280×280)
+  and Fenix 8 Solar 47mm (260×260): per-resolution Exocet bitmap fonts so text fits
+  the smaller panels, and a solid-black background tuned for MIP legibility.
+- Per-resolution font sets for every panel (454 / 416 / 280 / 260), wired up via
+  device `resourcePath` in `monkey.jungle`.
+- Release workflow now publishes a `.prg` for every supported product (AMOLED + Solar).
+
+### Changed
+- The dimmed "Always-On" render path is now gated to AMOLED panels only. MIP
+  displays (which sit in low-power but still show the full face) always render the
+  full layout instead of the stripped-down variant.
+
+### Fixed
+- Always clear to black before drawing, preventing stale-pixel smearing on devices
+  without a background image.
+
+## [1.0.0]
 
 ### Added
 - Initial Diablo-inspired watch face for the Garmin tactix 8 (Fenix 8 AMOLED),

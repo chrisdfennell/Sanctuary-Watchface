@@ -1,17 +1,17 @@
 info face="exocet_value" size=42 bold=0 italic=0 charset="" unicode=1 stretchH=100 smooth=1 aa=1 padding=0,0,0,0 spacing=1,1 outline=0
-common lineHeight=49 base=37 scaleW=256 scaleH=64 pages=1 packed=0 alphaChnl=1 redChnl=4 greenChnl=4 blueChnl=4
+common lineHeight=49 base=37 scaleW=128 scaleH=128 pages=1 packed=0 alphaChnl=1 redChnl=4 greenChnl=4 blueChnl=4
 page id=0 file="exocet_value.png"
 chars count=12
 char id=48 x=2 y=2 width=35 height=26 xoffset=0 yoffset=12 xadvance=35 page=0 chnl=15
 char id=49 x=39 y=2 width=21 height=26 xoffset=0 yoffset=12 xadvance=21 page=0 chnl=15
 char id=50 x=62 y=2 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
 char id=51 x=89 y=2 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
-char id=52 x=116 y=2 width=25 height=27 xoffset=0 yoffset=11 xadvance=25 page=0 chnl=15
-char id=53 x=143 y=2 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
-char id=54 x=170 y=2 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
-char id=55 x=197 y=2 width=27 height=27 xoffset=0 yoffset=12 xadvance=27 page=0 chnl=15
-char id=56 x=226 y=2 width=26 height=26 xoffset=0 yoffset=12 xadvance=26 page=0 chnl=15
-char id=57 x=2 y=31 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
-char id=37 x=29 y=31 width=34 height=26 xoffset=0 yoffset=12 xadvance=34 page=0 chnl=15
-char id=45 x=65 y=31 width=23 height=17 xoffset=0 yoffset=20 xadvance=23 page=0 chnl=15
+char id=52 x=2 y=30 width=25 height=27 xoffset=0 yoffset=11 xadvance=25 page=0 chnl=15
+char id=53 x=29 y=30 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
+char id=54 x=56 y=30 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
+char id=55 x=83 y=30 width=27 height=27 xoffset=0 yoffset=12 xadvance=27 page=0 chnl=15
+char id=56 x=2 y=59 width=26 height=26 xoffset=0 yoffset=12 xadvance=26 page=0 chnl=15
+char id=57 x=30 y=59 width=25 height=26 xoffset=0 yoffset=12 xadvance=25 page=0 chnl=15
+char id=37 x=57 y=59 width=34 height=26 xoffset=0 yoffset=12 xadvance=34 page=0 chnl=15
+char id=45 x=93 y=59 width=23 height=17 xoffset=0 yoffset=20 xadvance=23 page=0 chnl=15
 kernings count=0
