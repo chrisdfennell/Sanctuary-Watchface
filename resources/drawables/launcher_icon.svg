@@ -23,9 +23,14 @@
   <circle cx="36" cy="30" r="8" fill="url(#blueGlobe)" stroke="#6AC2FF" stroke-width="0.8"/>
   <circle cx="34" cy="27" r="1.6" fill="#FFFFFF" opacity="0.7"/>
 
-  <!-- Central time bar -->
+  <!-- Central time bar. Drawn with vector strokes (no <text>) so the SVG rasterizes
+       in headless CI containers that have no system fonts. -->
   <rect x="18" y="13" width="12" height="9" rx="1.5" fill="#0E0E0E" stroke="#8A2020" stroke-width="0.8"/>
-  <text x="24" y="20" font-family="monospace" font-size="6" fill="#E8E8E8" text-anchor="middle">88</text>
+  <g stroke="#E8E8E8" stroke-width="1" stroke-linecap="round">
+    <line x1="22" y1="16" x2="22" y2="19"/>
+    <line x1="24" y1="16" x2="24" y2="19"/>
+    <line x1="26" y1="16" x2="26" y2="19"/>
+  </g>
 
   <!-- XP bar at the bottom -->
   <rect x="14" y="40" width="20" height="2.5" rx="1.25" fill="#1A1408"/>
