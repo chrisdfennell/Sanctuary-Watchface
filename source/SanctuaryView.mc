@@ -36,6 +36,7 @@ class SanctuaryView extends WatchUi.WatchFace {
     // --- State ---
     private var mIsSleep as Boolean = false;
     private var mLowPower as Boolean = false;  // true only on AMOLED in Always-On (burn-in) mode
+    private var mFlatGlobes as Boolean = false; // true on MIP: flat 2-tone fills (no banded gradient)
     private var mLastMin as Number = -1;       // throttles low-power partial updates
 
     // --- Settings (see resources/settings) ---
@@ -158,7 +159,8 @@ class SanctuaryView extends WatchUi.WatchFace {
         var dx = 0;
         var dy = 0;
         var settings = System.getDeviceSettings();
-        if ((settings has :requiresBurnInProtection) && settings.requiresBurnInProtection && mIsSleep) {
+        var hasBurnIn = (settings has :requiresBurnInProtection) && settings.requiresBurnInProtection;
+        if (hasBurnIn && mIsSleep) {
             burnIn = true;
             var phase = System.getClockTime().min % 4;
             if (phase == 1)      { dx = 4;  dy = 2; }
@@ -166,6 +168,10 @@ class SanctuaryView extends WatchUi.WatchFace {
             else if (phase == 3) { dx = 3;  dy = -4; }
         }
         mLowPower = burnIn;   // drives the dim/thin render path used below
+        // AMOLED panels need burn-in protection; the panels that DON'T are MIP /
+        // transflective, whose limited palette bands smooth gradients - so use clean
+        // flat fills there instead.
+        mFlatGlobes = !hasBurnIn;
 
         var cx = mCenterX + dx;
         var cy = mCenterY + dy;
@@ -351,8 +357,9 @@ class SanctuaryView extends WatchUi.WatchFace {
             return;
         }
 
-        // 1. Soft outer glow (only when there is fluid to glow).
-        if (available && value > 0) {
+        // 1. Soft outer glow (only when there is fluid to glow). Skipped on MIP,
+        //    where dim halo rings just read as muddy banding.
+        if (available && value > 0 && !mFlatGlobes) {
             dc.setPenWidth(3);
             dc.setColor(scaleColor(glow, 0.60), Graphics.COLOR_TRANSPARENT);
             dc.drawCircle(gx, gy, r + 2);
@@ -376,20 +383,31 @@ class SanctuaryView extends WatchUi.WatchFace {
             var fillH = (2.0 * r) * v / 100.0;
             var surfaceY = ((gy + r) - fillH).toNumber();
             var bottomY = gy + r - 1;
+            // Precompute the two flat MIP tones so we don't lerp per row.
+            var flatTop = bright;
+            var flatBottom = lerpColor(bright, dark, 0.5);
             var step = 2;
             for (var y = surfaceY; y <= bottomY; y += step) {
                 var half = chordHalf(r - 1, y - gy);
                 if (half < 1) { continue; }
-                var t = 1.0 - ((y - surfaceY).toFloat() / fillH);  // 1 surface .. 0 bottom
-                if (t < 0.0) { t = 0.0; }
-                if (t > 1.0) { t = 1.0; }
-                dc.setColor(lerpColor(dark, bright, t), Graphics.COLOR_TRANSPARENT);
+                var depth = (y - surfaceY).toFloat() / fillH;       // 0 surface .. 1 bottom
+                var c;
+                if (mFlatGlobes) {
+                    // Clean 2-tone fill - no smooth gradient for MIP to band.
+                    c = (depth < 0.55) ? flatTop : flatBottom;
+                } else {
+                    var t = 1.0 - depth;                            // 1 surface .. 0 bottom
+                    if (t < 0.0) { t = 0.0; }
+                    if (t > 1.0) { t = 1.0; }
+                    c = lerpColor(dark, bright, t);
+                }
+                dc.setColor(c, Graphics.COLOR_TRANSPARENT);
                 dc.fillRectangle(gx - half, y, 2 * half, step);
             }
 
             // Molten core: a soft brighter glow at the fluid's center of mass for
-            // volume (skipped on a near-empty orb so it doesn't float in the void).
-            if (fillH > r * 0.5) {
+            // volume (skipped on MIP and on a near-empty orb).
+            if (fillH > r * 0.5 && !mFlatGlobes) {
                 var coreY = (gy + r - fillH * 0.45).toNumber();
                 dc.setColor(lerpColor(bright, 0xFFFFFF, 0.10), Graphics.COLOR_TRANSPARENT);
                 dc.fillCircle(gx, coreY, (r * 0.22).toNumber());
