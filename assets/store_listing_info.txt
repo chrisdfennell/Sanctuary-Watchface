@@ -1,41 +1,69 @@
 ========================================================================
-GARMIN CONNECT IQ STORE LISTING INFO - NIMBUS DIGITAL WATCH FACE
+GARMIN CONNECT IQ STORE LISTING INFO - SANCTUARY WATCH FACE
 ========================================================================
 
 ------------------------------------------------------------------------
-FIELD: Title (Max 30 characters)
+FIELD: Title (Max 50 characters)
 ------------------------------------------------------------------------
-Nimbus Digital Weather Face
+Sanctuary — Diablo Life & Mana Globes
+
+(Alternates: "Sanctuary — Diablo-Inspired Watch Face" /
+ "Sanctuary: Life & Mana Resource Globes")
 
 
 ------------------------------------------------------------------------
-FIELD: Description (Max 8000 characters)
+FIELD: Description (Max 4000 characters)
 ------------------------------------------------------------------------
-Nimbus Digital is a premium, data-driven, weather-first watch face for your Garmin smartwatch. Designed as a clean and high-density information dashboard, it provides everything you need for your day at a single glance, without cluttered configurations.
+Sanctuary is a dark, gothic watch face inspired by the iconic health and mana orbs of classic action-RPGs. Two glowing resource globes flank a bold central clock set in the Exocet typeface, turning your wrist stats into a tactical HUD.
 
-Key Features:
-- Large, high-visibility digital clock featuring a split-color layout (hour in accent theme, minutes in white/silver).
-- Prominent live weather module featuring real-time temperature, daily high/low forecast, current conditions, and secondary weather metrics (precipitation %, relative humidity, wind speed).
-- Clean and scalable vector-drawn procedural weather icons (Clear, Cloudy, Rainy, Snowy, Stormy, Windy, Foggy, Mixed).
-- Fully integrated 5-day daily forecast rows showing daily conditions and temperature ranges.
-- Active sensor readings: steps count and real-time heart rate (BPM) tracking.
-- 4-column activity footer: Calories burned, Distance traveled, Floors climbed, and Active minutes.
-- Comprehensive status header: Battery (with color-coded battery icon), solar intensity charging rate, Bluetooth connection state, notifications/DND, and active alarms.
-- Clean and efficient Always-On-Display (AOD) sleep layout with pixel-shifting burn-in protection.
-- Customization: 8 premium color themes (Midnight Gold, Rose Gold, Arctic Teal, Ember Orange, Forest Green, Lavender Mist, Pearl Silver, Solar Amber) and a seconds hand display toggle.
+GLOWING RESOURCE GLOBES
+• LIFE (left, crimson): your Body Battery, filling from the bottom 0–100. Watch your energy drain and recharge like a health orb.
+• MANA (right, sapphire): your device battery, 0–100%. One glance tells you how much charge remains.
+Each globe sits in an ornate riveted metal bezel, with a liquid fill, a bright surface line, and a glass highlight.
+
+AT A GLANCE
+• Large Exocet time (12/24h follows your watch setting)
+• Optional date line with an ornamental divider
+• A steps "XP" bar across the bottom that fills toward your daily step goal
+
+BUILT FOR YOUR DISPLAY
+Sanctuary adapts to your panel:
+• AMOLED (Fenix 8 / tactix 8 / quatix 8 and Fenix 8 Pro): smooth gradient globes, soft glows, molten cores, and a full Diablo-inspired background.
+• MIP / Solar (tactix 8 Solar, Fenix 8 Solar): clean, high-contrast flat globes and a deep-black background tuned for sunlight legibility.
+Everything is laid out relative to your screen, so it looks right on every supported case size.
+
+ALWAYS-ON FRIENDLY
+On AMOLED, the always-on display switches to a burn-in-safe variant — dim time, thin globe rings, and shifting pixels. MIP panels always show the full face.
+
+SETTINGS
+• Show Date — toggle the date line
+• Step Goal Override — set a custom steps target for the XP bar, or use your watch's own goal
+
+PRIVACY
+Sanctuary uses only the SensorHistory permission to read Body Battery. It does not collect or transmit any data off your watch.
+
+SUPPORTED DEVICES
+tactix 8 (AMOLED & Solar), Fenix 8 (43/47/51mm AMOLED), Fenix 8 Solar, Fenix 8 Pro, quatix 8.
+
+Equip Sanctuary, and keep watch.
 
 
 ------------------------------------------------------------------------
-FIELD: What's New in this Version (Max 8000 characters)
+FIELD: What's New in this Version (Max 4000 characters)
 ------------------------------------------------------------------------
-Initial Release:
-- Premium digital layout with split-color digital clock.
-- Integrated weather module with live metrics (precipitation, wind speed, humidity).
-- Vector-drawn weather icon rendering.
-- 5-day forecast grid with daily weather states.
-- 4-column activity tracking grid (CAL, DIST, FLOORS, ACTIVE).
-- Smart status bar with battery, notifications, alarm, connection, and solar charge indicators.
-- Power-saving Always-On-Display (AOD) mode with pixel-shifting burn-in protection.
+Version 1.0.1 — Solar & MIP support
+
+Sanctuary now runs beautifully on memory-in-pixel (MIP) displays like the tactix 8 Solar and Fenix 8 Solar — not just AMOLED.
+
+• Per-display fonts: the Exocet typeface is now sized for every panel (454, 416, 280, and 260 px), so the time, date, and labels fit cleanly on the smaller Solar screens.
+• Clean flat globes on MIP: the LIFE and MANA globes use a crisp two-tone fill tuned for MIP's palette — no gradient banding — while AMOLED keeps the smooth liquid gradient and full background art.
+• Full face in always-on on MIP: these panels stay in low power but still show the whole display, so Sanctuary now renders the complete face there. (The dimmed always-on variant is reserved for AMOLED burn-in protection.)
+• Solid-black background on MIP for maximum contrast and sunlight legibility.
+• More robust rendering: the screen always clears to black first, preventing stale-pixel artifacts.
+
+On a Fenix 8 or tactix 8 AMOLED? Your experience is unchanged — rich gradients, glows, and the gothic background remain.
+
+Thanks for wearing Sanctuary!
 
 
 ------------------------------------------------------------------------
