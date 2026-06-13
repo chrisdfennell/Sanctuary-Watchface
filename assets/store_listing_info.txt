@@ -5,9 +5,9 @@ GARMIN CONNECT IQ STORE LISTING INFO - SANCTUARY WATCH FACE
 ------------------------------------------------------------------------
 FIELD: Title (Max 50 characters)
 ------------------------------------------------------------------------
-Sanctuary — Diablo Life & Mana Globes
+Sanctuary — Sanctuary — Diablo-Inspired Watch Face
 
-(Alternates: "Sanctuary — Diablo-Inspired Watch Face" /
+(Alternates: "Diablo Life & Mana Globes" /
  "Sanctuary: Life & Mana Resource Globes")
 
 
