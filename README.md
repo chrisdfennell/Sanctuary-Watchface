@@ -7,7 +7,15 @@ Two glowing resource globes flank a large central clock:
 
 - **Left globe — Body Battery** (crimson "health" orb), fills from the bottom 0–100.
 - **Right globe — device battery** (sapphire "mana" orb), fills from the bottom 0–100%.
-- **Center** — the time (12/24h follows the device setting) with an optional date line.
+- Each orb is **configurable** (Body Battery, Device Battery, Steps or Stress); its
+  color and label follow the chosen metric. The crimson/sapphire pairing above is the
+  default.
+- **Center** — the time (12/24h follows the device setting) with an optional date line,
+  and the current **heart rate** (crimson heart + BPM) in the column between the orbs.
+- **Top** — a **status-icon row**: phone connection, notifications, alarms and Do Not
+  Disturb, each shown only when active.
+- **Below the date** — the next **sunrise/sunset** (sun + sunset by day, moon + sunrise
+  by night), when a GPS location is known.
 - **Bottom** — a steps **"XP" bar** showing today's steps vs. your step goal.
 
 The globes use a liquid-fill look (dark glass sphere, brighter fluid level inside, a
@@ -47,6 +55,13 @@ The face has two render paths sharing one `onUpdate()`:
 - **Body Battery:** `SensorHistory.getBodyBatteryHistory()` (requires the `SensorHistory`
   permission, already declared). Fails gracefully to a dimmed globe (`--`) if the value
   is unavailable. A Complications-based alternative is noted in `getBodyBattery()`.
+- **Heart rate:** `Activity.getActivityInfo().currentHeartRate`, falling back to the
+  latest `ActivityMonitor.getHeartRateHistory()` sample, then `--`.
+- **Status icons:** `System.getDeviceSettings()` — `phoneConnected`, `notificationCount`,
+  `alarmCount`, `doNotDisturb` (each guarded with a `has` check).
+- **Sunrise/sunset:** computed in `SolarUtil` (the standard sunrise equation) from the
+  last known location — `Activity.currentLocation`, falling back to the `Weather`
+  observation location. No extra permission; hidden when no fix is available.
 
 ## Settings
 
@@ -54,6 +69,12 @@ Editable in Garmin Connect / the simulator's App Settings:
 
 - **Show Date** — toggle the date line.
 - **Step Goal Override** — steps for a full XP bar; `0` uses the watch's own step goal.
+- **Show Heart Rate** — toggle the central heart-rate readout.
+- **Show Status Icons** — toggle the notification / alarm / phone / DND row.
+- **Left Orb / Right Orb** — choose what each orb shows: Body Battery (Life),
+  Device Battery (Mana), Steps, or Stress. The orb's color and label follow the
+  metric, so this doubles as the face's theming.
+- **Show Sun Times** — toggle the sunrise/sunset indicator.
 
 ## Build & run
 
@@ -85,6 +106,15 @@ In the simulator you can exercise the design via the menus:
 - **Settings → Battery** to move the device-battery globe.
 - **Simulation → Body Battery** for the crimson globe.
 - **Simulation → Time / Sleep** (Always On) to preview the low-power render path.
+
+### Run the unit tests
+
+The pure color/geometry helpers (`source/ColorUtil.mc`) have `(:test)` coverage in
+`source/Tests.mc`:
+
+```powershell
+./build.ps1 -Test               # builds a unit-test image and runs it in the simulator
+```
 
 ### Sideload to the watch
 
@@ -120,7 +150,11 @@ fonts-src/ExocetLight.ttf  ──┤  python tools/gen_fonts.py
 
 - **Colors / thresholds:** globe and XP palettes are the `C_*` constants at the top of
   `SanctuaryView.mc`. Layout anchors are the percentage values in `onUpdate()`.
+- **Orb metrics:** `drawMetricGlobe()` maps each metric id (Body Battery / Battery /
+  Steps / Stress) to its value, palette and label. Add a metric by extending that
+  switch, the `METRIC_*` constants, and the `listEntry` values in `settings.xml`.
 - **Ornamentation:** `drawOrnateBezel()` (globe frames + rivets), `drawDivider()` (the
   flourish under the time), and `drawXpBar()` (bronze frame + diamond end-caps) are the
   Diablo styling helpers — tweak metal colors / rivet counts there.
-- **Labels:** the `LIFE` / `MANA` orb labels are set in `onUpdate()`.
+- **Labels:** the `LIFE` / `MANA` / `HR` / `STEPS` / `STRESS` labels live in
+  `resources/strings/strings.xml` (loaded in `initLabels()`).

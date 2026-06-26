@@ -8,4 +8,38 @@
     <setting propertyKey="@Properties.StepGoalOverride" title="@Strings.StepGoalTitle" prompt="@Strings.StepGoalPrompt">
         <settingConfig type="numeric" min="0" max="100000" />
     </setting>
+
+    <!-- Toggle the central heart-rate readout -->
+    <setting propertyKey="@Properties.ShowHeartRate" title="@Strings.ShowHeartRateTitle" prompt="@Strings.ShowHeartRatePrompt">
+        <settingConfig type="boolean" />
+    </setting>
+
+    <!-- Toggle the status-icon row above the time -->
+    <setting propertyKey="@Properties.ShowStatusIcons" title="@Strings.ShowStatusIconsTitle" prompt="@Strings.ShowStatusIconsPrompt">
+        <settingConfig type="boolean" />
+    </setting>
+
+    <!-- Pick the metric that fills each orb -->
+    <setting propertyKey="@Properties.LeftGlobeMetric" title="@Strings.LeftGlobeTitle" prompt="@Strings.LeftGlobePrompt">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.MetricBodyBattery</listEntry>
+            <listEntry value="1">@Strings.MetricDeviceBattery</listEntry>
+            <listEntry value="2">@Strings.MetricSteps</listEntry>
+            <listEntry value="3">@Strings.MetricStress</listEntry>
+        </settingConfig>
+    </setting>
+
+    <setting propertyKey="@Properties.RightGlobeMetric" title="@Strings.RightGlobeTitle" prompt="@Strings.RightGlobePrompt">
+        <settingConfig type="list">
+            <listEntry value="0">@Strings.MetricBodyBattery</listEntry>
+            <listEntry value="1">@Strings.MetricDeviceBattery</listEntry>
+            <listEntry value="2">@Strings.MetricSteps</listEntry>
+            <listEntry value="3">@Strings.MetricStress</listEntry>
+        </settingConfig>
+    </setting>
+
+    <!-- Toggle the next sunrise/sunset indicator -->
+    <setting propertyKey="@Properties.ShowSunTimes" title="@Strings.ShowSunTimesTitle" prompt="@Strings.ShowSunTimesPrompt">
+        <settingConfig type="boolean" />
+    </setting>
 </settings>

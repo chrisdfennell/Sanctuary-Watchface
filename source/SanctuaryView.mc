@@ -5,8 +5,10 @@ import Toybox.WatchUi;
 import Toybox.Time;
 import Toybox.Time.Gregorian;
 import Toybox.ActivityMonitor;
+import Toybox.Activity;
 import Toybox.Application;
 import Toybox.SensorHistory;
+import Toybox.Weather;
 import Toybox.Math;
 
 //
@@ -42,6 +44,18 @@ class SanctuaryView extends WatchUi.WatchFace {
     // --- Settings (see resources/settings) ---
     private var mShowDate as Boolean = true;
     private var mStepGoalOverride as Number = 0;  // 0 => use device step goal
+    private var mShowHeartRate as Boolean = true;
+    private var mShowStatusIcons as Boolean = true;
+    private var mLeftMetric as Number = 0;   // METRIC_BODY
+    private var mRightMetric as Number = 1;  // METRIC_BATTERY
+    private var mShowSunTimes as Boolean = true;
+
+    // --- Localized on-face labels (loaded in onLayout; safe fallbacks here) ---
+    private var mLifeLabel as String = "LIFE";
+    private var mManaLabel as String = "MANA";
+    private var mHrLabel as String = "HR";
+    private var mStepsLabel as String = "STEPS";
+    private var mStressLabel as String = "STRESS";
 
     // --- Fonts (vector fonts with safe fallbacks) ---
     private var mFontTime as Graphics.FontType or Null = null;
@@ -61,6 +75,33 @@ class SanctuaryView extends WatchUi.WatchFace {
     private const C_BATT_DARK   = 0x081C4A;
     private const C_BATT_RIM    = 0x60B0FF;
     private const C_BATT_GLOW   = 0x1C4C90;
+    // Steps globe = molten gold (matches the XP bar family)
+    private const C_STEP_BRIGHT = 0xFFD060;
+    private const C_STEP_DARK   = 0x3A2A08;
+    private const C_STEP_RIM    = 0xFFE090;
+    private const C_STEP_GLOW   = 0x6A4810;
+    // Stress globe = arcane violet
+    private const C_STRS_BRIGHT = 0xB060FF;
+    private const C_STRS_DARK   = 0x1C0A3A;
+    private const C_STRS_RIM    = 0xC080FF;
+    private const C_STRS_GLOW   = 0x4A1C90;
+
+    // Globe metric ids (must match the listEntry values in settings.xml).
+    private const METRIC_BODY    = 0;
+    private const METRIC_BATTERY = 1;
+    private const METRIC_STEPS   = 2;
+    private const METRIC_STRESS  = 3;
+    // Heart-rate readout = crimson (shares the "health" hue family)
+    private const C_HR_BRIGHT   = 0xFF5040;
+    private const C_HR_DIM       = 0x8A3028;
+    // Status icons
+    private const C_ICON_ON      = 0xB89860;   // active / connected (bronze-gold)
+    private const C_ICON_OFF     = 0x4A3A22;   // inactive / disconnected (dim bronze)
+    private const C_ICON_ALERT   = 0xFF6048;   // notification accent (crimson)
+    // Sun-times indicator
+    private const C_SUN          = 0xFFC040;   // amber sun
+    private const C_MOON         = 0xC0C0D0;   // pale silver moon
+    private const C_SUN_TEXT     = 0x9A8A6A;   // muted gold time text
     // XP bar = molten amber/gold
     private const C_XP_TRACK    = 0x1C1408;
     private const C_XP_FILL     = 0xE0A028;
@@ -81,8 +122,18 @@ class SanctuaryView extends WatchUi.WatchFace {
             if (Application has :Properties) {
                 var showDate = Application.Properties.getValue("ShowDate");
                 var stepGoal = Application.Properties.getValue("StepGoalOverride");
+                var showHr = Application.Properties.getValue("ShowHeartRate");
+                var showIcons = Application.Properties.getValue("ShowStatusIcons");
+                var leftMetric = Application.Properties.getValue("LeftGlobeMetric");
+                var rightMetric = Application.Properties.getValue("RightGlobeMetric");
+                var showSun = Application.Properties.getValue("ShowSunTimes");
                 if (showDate != null) { mShowDate = showDate; }
                 if (stepGoal != null) { mStepGoalOverride = stepGoal; }
+                if (showHr != null) { mShowHeartRate = showHr; }
+                if (showIcons != null) { mShowStatusIcons = showIcons; }
+                if (leftMetric != null) { mLeftMetric = leftMetric; }
+                if (rightMetric != null) { mRightMetric = rightMetric; }
+                if (showSun != null) { mShowSunTimes = showSun; }
             }
         } catch (e) {
             // keep defaults
@@ -96,11 +147,25 @@ class SanctuaryView extends WatchUi.WatchFace {
         mCenterX = mWidth / 2;
         mCenterY = mHeight / 2;
         initFonts();
+        initLabels();
 
         try {
             mBackground = WatchUi.loadResource(Rez.Drawables.diablo_background) as WatchUi.BitmapResource;
         } catch (e) {
             mBackground = null;
+        }
+    }
+
+    // Load the localizable on-face labels; keep the English fallbacks on failure.
+    function initLabels() as Void {
+        try {
+            mLifeLabel   = WatchUi.loadResource(Rez.Strings.LabelLife) as String;
+            mManaLabel   = WatchUi.loadResource(Rez.Strings.LabelMana) as String;
+            mHrLabel     = WatchUi.loadResource(Rez.Strings.LabelHeart) as String;
+            mStepsLabel  = WatchUi.loadResource(Rez.Strings.LabelSteps) as String;
+            mStressLabel = WatchUi.loadResource(Rez.Strings.LabelStress) as String;
+        } catch (e) {
+            // keep defaults
         }
     }
 
@@ -199,34 +264,35 @@ class SanctuaryView extends WatchUi.WatchFace {
         var xpW     = (w * 0.40).toNumber();
         var xpH     = (h * 0.024).toNumber();
         if (xpH < 5) { xpH = 5; }
+        var iconY   = (h * 0.135).toNumber() + dy;
+
+        // --- Status icons (active mode only; lit pixels burn in) ---
+        if (!burnIn && mShowStatusIcons) {
+            drawStatusIcons(dc, cx, iconY, (w * 0.034).toNumber());
+        }
 
         // --- Time ---
         drawTime(dc, cx, timeY);
 
-        // --- Ornamental divider + date (active mode only) ---
+        // --- Ornamental divider + date + sun times (active mode only) ---
         if (!burnIn) {
             drawDivider(dc, cx, dividerY, (w * 0.20).toNumber());
             if (mShowDate) {
                 drawDate(dc, cx, dateY);
             }
+            if (mShowSunTimes) {
+                drawSunTimes(dc, cx, (h * 0.525).toNumber() + dy);
+            }
         }
 
-        // --- Globes ---
-        var bodyBattery = getBodyBattery();              // Number 0-100 or null
-        var bodyAvail = (bodyBattery != null);
-        var bodyVal = bodyAvail ? bodyBattery : 0;
-        drawGlobe(dc, leftX, globeY, globeR, bodyVal, bodyAvail,
-                  C_BODY_BRIGHT, C_BODY_DARK, C_BODY_RIM, C_BODY_GLOW);
+        // --- Globes (each fills with its user-selected metric). The value + label
+        //     are drawn in active mode only; the fluid renders in both paths. ---
+        drawMetricGlobe(dc, leftX, globeY, globeR, labelY, mLeftMetric, !burnIn);
+        drawMetricGlobe(dc, rightX, globeY, globeR, labelY, mRightMetric, !burnIn);
 
-        var stats = System.getSystemStats();
-        var battery = (stats.battery != null) ? stats.battery.toNumber() : 0;
-        drawGlobe(dc, rightX, globeY, globeR, battery, true,
-                  C_BATT_BRIGHT, C_BATT_DARK, C_BATT_RIM, C_BATT_GLOW);
-
-        // --- Globe value + label (active mode only). LIFE / MANA = the Diablo orbs. ---
-        if (!burnIn) {
-            drawGlobeText(dc, leftX, globeY, labelY, bodyAvail ? bodyVal.format("%d") : "--", "LIFE", C_BODY_RIM);
-            drawGlobeText(dc, rightX, globeY, labelY, battery.format("%d") + "%", "MANA", C_BATT_RIM);
+        // --- Heart rate, centered in the open column between the orbs (active only) ---
+        if (!burnIn && mShowHeartRate) {
+            drawHeartRate(dc, cx, globeY, labelY, getHeartRate());
         }
 
         // --- Steps XP bar ---
@@ -240,7 +306,18 @@ class SanctuaryView extends WatchUi.WatchFace {
         var min = System.getClockTime().min;
         if (min == mLastMin) { return; }
         mLastMin = min;
+
+        // Constrain the partial frame to the face bounds and re-assert it after.
+        // The low-power path only lights thin rings/lines so we stay well inside the
+        // always-on power budget; bounding the clip keeps the watchdog's per-frame
+        // lit-pixel accounting tied to what we actually touch.
+        if (dc has :setClip) {
+            dc.setClip(0, 0, mWidth, mHeight);
+        }
         onUpdate(dc);   // mIsSleep is true here -> low-power render path
+        if (dc has :clearClip) {
+            dc.clearClip();
+        }
     }
 
     // ------------------------------------------------------------------ Elements
@@ -280,6 +357,52 @@ class SanctuaryView extends WatchUi.WatchFace {
         dc.setColor(labelColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(gx, labelY, mFontLabel, label,
             Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // Resolve a metric id to its value / availability / palette / label, then draw
+    // the globe (and, when showText, the centered value + themed label). This is how
+    // each orb honors the user's Left/Right Orb setting. Unknown ids fall back to
+    // Body Battery so a bad stored value still renders something sane.
+    function drawMetricGlobe(dc as Dc, gx as Number, gy as Number, r as Number,
+                             labelY as Number, metricId as Number, showText as Boolean) as Void {
+        var value = 0;
+        var avail = false;
+        var valueStr = "--";
+        var bright; var dark; var rim; var glow; var label;
+
+        if (metricId == METRIC_BATTERY) {
+            var stats = System.getSystemStats();
+            value = (stats.battery != null) ? stats.battery.toNumber() : 0;
+            avail = true;
+            valueStr = value.format("%d") + "%";
+            bright = C_BATT_BRIGHT; dark = C_BATT_DARK; rim = C_BATT_RIM; glow = C_BATT_GLOW;
+            label = mManaLabel;
+        } else if (metricId == METRIC_STEPS) {
+            value = (getStepFraction() * 100.0).toNumber();
+            avail = true;
+            valueStr = value.format("%d") + "%";
+            bright = C_STEP_BRIGHT; dark = C_STEP_DARK; rim = C_STEP_RIM; glow = C_STEP_GLOW;
+            label = mStepsLabel;
+        } else if (metricId == METRIC_STRESS) {
+            var stress = getStress();
+            avail = (stress != null);
+            value = avail ? stress : 0;
+            valueStr = avail ? value.format("%d") : "--";
+            bright = C_STRS_BRIGHT; dark = C_STRS_DARK; rim = C_STRS_RIM; glow = C_STRS_GLOW;
+            label = mStressLabel;
+        } else {  // METRIC_BODY (and any unknown id)
+            var body = getBodyBattery();
+            avail = (body != null);
+            value = avail ? body : 0;
+            valueStr = avail ? value.format("%d") : "--";
+            bright = C_BODY_BRIGHT; dark = C_BODY_DARK; rim = C_BODY_RIM; glow = C_BODY_GLOW;
+            label = mLifeLabel;
+        }
+
+        drawGlobe(dc, gx, gy, r, value, avail, bright, dark, rim, glow);
+        if (showText) {
+            drawGlobeText(dc, gx, gy, labelY, valueStr, label, rim);
+        }
     }
 
     // Ornamental gothic divider: a tapering line broken by a center diamond, with
@@ -503,6 +626,203 @@ class SanctuaryView extends WatchUi.WatchFace {
         dc.fillPolygon([[x + barW + 4, y], [x + barW + 1, y - dymid + 1], [x + barW - 2, y], [x + barW + 1, y + dymid - 1]]);
     }
 
+    // Central heart-rate readout: a small crimson heart above the BPM number, with
+    // a themed label beneath it (aligned with the LIFE / MANA orb labels). Sits in
+    // the open column between the two globes. Active mode only.
+    function drawHeartRate(dc as Dc, cx as Number, gy as Number, labelY as Number,
+                           bpm as Number or Null) as Void {
+        var avail = (bpm != null);
+        var heartY = gy - (mHeight * 0.045).toNumber();
+        drawHeart(dc, cx, heartY, (mHeight * 0.022).toNumber(), avail ? C_HR_BRIGHT : C_HR_DIM);
+
+        dc.setColor(avail ? 0xFFFFFF : 0x707070, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, gy + (mHeight * 0.005).toNumber(), mFontValue, avail ? bpm.format("%d") : "--",
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+
+        dc.setColor(C_HR_DIM, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(cx, labelY, mFontLabel, mHrLabel,
+            Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // A small filled heart: two top lobes + a downward point. `s` is the lobe radius.
+    function drawHeart(dc as Dc, cx as Number, cy as Number, s as Number, color as Number) as Void {
+        if (s < 2) { s = 2; }
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var lobe = (s * 0.55).toNumber();
+        if (lobe < 1) { lobe = 1; }
+        dc.fillCircle(cx - lobe, cy - (s * 0.25).toNumber(), lobe);
+        dc.fillCircle(cx + lobe, cy - (s * 0.25).toNumber(), lobe);
+        dc.fillPolygon([
+            [cx - s, cy - (s * 0.05).toNumber()],
+            [cx + s, cy - (s * 0.05).toNumber()],
+            [cx, cy + s]
+        ]);
+    }
+
+    // Status-icon row above the time: phone connection (always), then notification,
+    // alarm and Do Not Disturb indicators when active. Centered as a group so the
+    // row stays balanced regardless of how many icons are showing. `s` is the icon
+    // half-size. Each guarded against missing DeviceSettings fields.
+    function drawStatusIcons(dc as Dc, cx as Number, cy as Number, s as Number) as Void {
+        var settings = System.getDeviceSettings();
+
+        // Decide which icons to show, in fixed left-to-right order.
+        var connected = (settings has :phoneConnected) && settings.phoneConnected;
+        var notes = (settings has :notificationCount) ? settings.notificationCount : 0;
+        var alarms = (settings has :alarmCount) ? settings.alarmCount : 0;
+        var dnd = (settings has :doNotDisturb) && settings.doNotDisturb;
+        if (notes == null) { notes = 0; }
+        if (alarms == null) { alarms = 0; }
+
+        // :phone is always drawn; the rest only when active.
+        var icons = [:phone] as Array<Symbol>;
+        if (notes > 0)  { icons.add(:bell); }
+        if (alarms > 0) { icons.add(:alarm); }
+        if (dnd)        { icons.add(:moon); }
+
+        var n = icons.size();
+        var gap = (s * 3.0).toNumber();              // center-to-center spacing
+        var startX = cx - ((n - 1) * gap) / 2;
+        for (var i = 0; i < n; i++) {
+            var ix = startX + i * gap;
+            var sym = icons[i];
+            if (sym == :phone) {
+                drawIconBluetooth(dc, ix, cy, s, connected ? C_ICON_ON : C_ICON_OFF, !connected);
+            } else if (sym == :bell) {
+                drawIconBell(dc, ix, cy, s, C_ICON_ALERT);
+            } else if (sym == :alarm) {
+                drawIconAlarm(dc, ix, cy, s, C_ICON_ON);
+            } else if (sym == :moon) {
+                drawIconMoon(dc, ix, cy, s, C_ICON_ON);
+            }
+        }
+    }
+
+    // Bluetooth rune: vertical staff with the two crossing triangles. `slash` draws
+    // a diagonal strike when the phone is disconnected.
+    function drawIconBluetooth(dc as Dc, cx as Number, cy as Number, s as Number, color as Number, slash as Boolean) as Void {
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        var rx = (s * 0.55).toNumber();
+        var ry = (s * 0.45).toNumber();
+        dc.drawLine(cx, cy - s, cx, cy + s);              // staff
+        dc.drawLine(cx, cy - s, cx + rx, cy - ry);        // upper-right arm
+        dc.drawLine(cx + rx, cy - ry, cx - rx, cy + ry);  // diagonal down-left
+        dc.drawLine(cx - rx, cy - ry, cx + rx, cy + ry);  // diagonal up-right
+        dc.drawLine(cx + rx, cy + ry, cx, cy + s);        // lower-right arm
+        if (slash) {
+            dc.setColor(C_ICON_OFF, Graphics.COLOR_TRANSPARENT);
+            dc.drawLine(cx - s, cy + s, cx + s, cy - s);
+        }
+    }
+
+    // Small notification bell.
+    function drawIconBell(dc as Dc, cx as Number, cy as Number, s as Number, color as Number) as Void {
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var top = cy - s;
+        var bot = cy + (s * 0.5).toNumber();
+        // Body: tapered dome.
+        dc.fillPolygon([
+            [cx - (s * 0.7).toNumber(), bot],
+            [cx - (s * 0.45).toNumber(), cy - (s * 0.3).toNumber()],
+            [cx, top],
+            [cx + (s * 0.45).toNumber(), cy - (s * 0.3).toNumber()],
+            [cx + (s * 0.7).toNumber(), bot]
+        ]);
+        // Clapper.
+        dc.fillCircle(cx, bot + (s * 0.25).toNumber(), (s * 0.22).toNumber());
+    }
+
+    // Small alarm clock: ringed face with two top bells and a pair of hands.
+    function drawIconAlarm(dc as Dc, cx as Number, cy as Number, s as Number, color as Number) as Void {
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.setPenWidth(2);
+        var r = (s * 0.7).toNumber();
+        dc.drawCircle(cx, cy, r);
+        // Top bell legs.
+        dc.drawLine(cx - (s * 0.45).toNumber(), cy - (s * 0.55).toNumber(), cx - (s * 0.8).toNumber(), cy - (s * 0.9).toNumber());
+        dc.drawLine(cx + (s * 0.45).toNumber(), cy - (s * 0.55).toNumber(), cx + (s * 0.8).toNumber(), cy - (s * 0.9).toNumber());
+        // Hands.
+        dc.setPenWidth(1);
+        dc.drawLine(cx, cy, cx, cy - (s * 0.4).toNumber());
+        dc.drawLine(cx, cy, cx + (s * 0.3).toNumber(), cy);
+    }
+
+    // Crescent moon (Do Not Disturb): a disc with a bite carved by the background.
+    function drawIconMoon(dc as Dc, cx as Number, cy as Number, s as Number, color as Number) as Void {
+        var r = (s * 0.7).toNumber();
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx, cy, r);
+        dc.setColor(BG_COLOR, Graphics.COLOR_TRANSPARENT);
+        dc.fillCircle(cx + (s * 0.35).toNumber(), cy - (s * 0.2).toNumber(), r);
+    }
+
+    // Sun glyph: a filled core with eight short rays.
+    function drawSun(dc as Dc, cx as Number, cy as Number, r as Number, color as Number) as Void {
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        var core = (r * 0.55).toNumber();
+        if (core < 2) { core = 2; }
+        dc.fillCircle(cx, cy, core);
+        dc.setPenWidth(2);
+        for (var a = 0; a < 360; a += 45) {
+            var rad = a * Math.PI / 180.0;
+            var co = Math.cos(rad);
+            var si = Math.sin(rad);
+            dc.drawLine(cx + ((core + 1) * co).toNumber(), cy + ((core + 1) * si).toNumber(),
+                        cx + (r * co).toNumber(),          cy + (r * si).toNumber());
+        }
+    }
+
+    // Next sun event in the open column below the date: a sun + sunset time during
+    // the day, a moon + sunrise time at night. Silently draws nothing when no GPS
+    // location is known or during polar day/night. Active mode only.
+    function drawSunTimes(dc as Dc, cx as Number, y as Number) as Void {
+        var loc = getLocationDeg();
+        if (loc == null) { return; }
+        var nowUnix = Time.now().value();
+        var ev = SolarUtil.sunEvents(nowUnix, loc[0], loc[1]);
+        if (ev == null) { return; }
+
+        var sunrise = ev[:sunrise];
+        var sunset = ev[:sunset];
+        var isDay = (nowUnix >= sunrise && nowUnix < sunset);
+        var nextUnix = isDay ? sunset : sunrise;
+
+        var tz = System.getClockTime().timeZoneOffset;   // local offset, seconds
+        var timeStr = formatLocalHM(nextUnix + tz);
+
+        var iconR = (mWidth * 0.020).toNumber();
+        if (iconR < 5) { iconR = 5; }
+        var gap = (mWidth * 0.014).toNumber();
+        var tw = dc.getTextWidthInPixels(timeStr, mFontLabel);
+        var startX = cx - (iconR * 2 + gap + tw) / 2;
+        var iconCx = startX + iconR;
+
+        if (isDay) {
+            drawSun(dc, iconCx, y, iconR, C_SUN);
+        } else {
+            drawIconMoon(dc, iconCx, y, iconR, C_MOON);
+        }
+        dc.setColor(C_SUN_TEXT, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(startX + iconR * 2 + gap, y, mFontLabel, timeStr,
+            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+
+    // Format a UTC-plus-offset second count as H:MM / HH:MM per the device's clock.
+    function formatLocalHM(localSec as Number) as String {
+        var totalMin = localSec / 60;
+        var hh = (totalMin / 60) % 24;
+        var mm = totalMin % 60;
+        if (hh < 0) { hh += 24; }
+        if (mm < 0) { mm += 60; }
+        if (System.getDeviceSettings().is24Hour) {
+            return hh.format("%02d") + ":" + mm.format("%02d");
+        }
+        var h12 = hh % 12;
+        if (h12 == 0) { h12 = 12; }
+        return h12.format("%d") + ":" + mm.format("%02d");
+    }
+
     // ------------------------------------------------------------------- Data
 
     // Today's steps as a fraction of the step goal (0.0 .. 1.0).
@@ -554,35 +874,101 @@ class SanctuaryView extends WatchUi.WatchFace {
         return null;
     }
 
+    // Current heart rate in BPM, or null if unavailable (no recent reading / no
+    // sensor). Prefers the live Activity value, falling back to the most recent
+    // ActivityMonitor heart-rate history sample. Null => the readout shows "--".
+    function getHeartRate() as Number or Null {
+        try {
+            var info = Activity.getActivityInfo();
+            if (info != null && info.currentHeartRate != null) {
+                return info.currentHeartRate.toNumber();
+            }
+        } catch (e) {
+            // fall through to history
+        }
+        try {
+            if (ActivityMonitor has :getHeartRateHistory) {
+                var iter = ActivityMonitor.getHeartRateHistory(1, true);
+                if (iter != null) {
+                    var sample = iter.next();
+                    if (sample != null && sample.heartRate != null
+                            && sample.heartRate != ActivityMonitor.INVALID_HR_SAMPLE) {
+                        return sample.heartRate.toNumber();
+                    }
+                }
+            }
+        } catch (e) {
+            // fall through
+        }
+        return null;
+    }
+
+    // Last known location as [latDeg, lngDeg], or null if none is available. Uses
+    // the activity's current location (no extra permission), falling back to the
+    // weather observation location. Watch faces can't drive GPS, so this is whatever
+    // the system last fixed.
+    function getLocationDeg() as Array or Null {
+        try {
+            var info = Activity.getActivityInfo();
+            if (info != null && (info has :currentLocation) && info.currentLocation != null) {
+                return info.currentLocation.toDegrees();
+            }
+        } catch (e) {
+            // fall through
+        }
+        try {
+            if (Toybox has :Weather) {
+                var cc = Weather.getCurrentConditions();
+                if (cc != null && (cc has :observationLocationPosition)
+                        && cc.observationLocationPosition != null) {
+                    return cc.observationLocationPosition.toDegrees();
+                }
+            }
+        } catch (e) {
+            // fall through
+        }
+        return null;
+    }
+
+    // Current stress level (0-100) via SensorHistory, or null if unavailable.
+    // Same shape as getBodyBattery: synchronous newest sample, fully guarded.
+    function getStress() as Number or Null {
+        try {
+            if ((Toybox has :SensorHistory) && (SensorHistory has :getStressHistory)) {
+                var iter = SensorHistory.getStressHistory({
+                    :period => 1,
+                    :order => SensorHistory.ORDER_NEWEST_FIRST
+                });
+                if (iter != null) {
+                    var sample = iter.next();
+                    if (sample != null && sample.data != null) {
+                        var v = sample.data.toNumber();
+                        if (v < 0) { v = 0; }
+                        if (v > 100) { v = 100; }
+                        return v;
+                    }
+                }
+            }
+        } catch (e) {
+            // fall through
+        }
+        return null;
+    }
+
     // ------------------------------------------------------------ Color helpers
 
-    // Half-length of the horizontal chord of a circle (radius r) at vertical
-    // offset dy from its center. Used to size fluid-surface lines.
+    // Thin delegators to ColorUtil (kept so the many call sites above read locally).
+    // The implementations live in source/ColorUtil.mc so they can be unit-tested.
     function chordHalf(r as Number, dy as Number) as Number {
-        var d = r * r - dy * dy;
-        if (d <= 0) { return 0; }
-        return Math.sqrt(d).toNumber();
+        return ColorUtil.chordHalf(r, dy);
     }
 
-    // Linear interpolate between two 0xRRGGBB colors. t in [0,1].
     function lerpColor(c1 as Number, c2 as Number, t as Float) as Number {
-        if (t < 0.0) { t = 0.0; }
-        if (t > 1.0) { t = 1.0; }
-        var r1 = (c1 >> 16) & 0xFF;
-        var g1 = (c1 >> 8) & 0xFF;
-        var b1 = c1 & 0xFF;
-        var r2 = (c2 >> 16) & 0xFF;
-        var g2 = (c2 >> 8) & 0xFF;
-        var b2 = c2 & 0xFF;
-        var r = (r1 + ((r2 - r1) * t)).toNumber();
-        var g = (g1 + ((g2 - g1) * t)).toNumber();
-        var b = (b1 + ((b2 - b1) * t)).toNumber();
-        return (r << 16) | (g << 8) | b;
+        return ColorUtil.lerpColor(c1, c2, t);
     }
 
-    // Scale a color's brightness toward black. f in [0,1].
     function scaleColor(c as Number, f as Float) as Number {
-        return lerpColor(0x000000, c, f);
+        return ColorUtil.scaleColor(c, f);
     }
 
     // ----------------------------------------------------------- Lifecycle

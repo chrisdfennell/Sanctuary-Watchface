@@ -1,10 +1,37 @@
 <strings xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://developer.garmin.com/downloads/connect-iq/resources.xsd">
     <string id="AppName">Sanctuary</string>
 
+    <!-- On-face orb / metric labels (localizable) -->
+    <string id="LabelLife">LIFE</string>
+    <string id="LabelMana">MANA</string>
+    <string id="LabelHeart">HR</string>
+    <string id="LabelSteps">STEPS</string>
+    <string id="LabelStress">STRESS</string>
+
     <!-- Settings -->
     <string id="ShowDateTitle">Show Date</string>
     <string id="ShowDatePrompt">Show the date line beneath the time.</string>
 
     <string id="StepGoalTitle">Step Goal Override</string>
     <string id="StepGoalPrompt">Steps for a full XP bar. Set 0 to use the watch's own daily step goal.</string>
+
+    <string id="ShowHeartRateTitle">Show Heart Rate</string>
+    <string id="ShowHeartRatePrompt">Show the current heart rate between the two orbs.</string>
+
+    <string id="ShowStatusIconsTitle">Show Status Icons</string>
+    <string id="ShowStatusIconsPrompt">Show notification, alarm, phone-connection and Do Not Disturb indicators above the time.</string>
+
+    <!-- Per-globe metric selection -->
+    <string id="LeftGlobeTitle">Left Orb</string>
+    <string id="LeftGlobePrompt">Which metric fills the left orb.</string>
+    <string id="RightGlobeTitle">Right Orb</string>
+    <string id="RightGlobePrompt">Which metric fills the right orb.</string>
+
+    <string id="MetricBodyBattery">Body Battery (Life)</string>
+    <string id="MetricDeviceBattery">Device Battery (Mana)</string>
+    <string id="MetricSteps">Steps</string>
+    <string id="MetricStress">Stress</string>
+
+    <string id="ShowSunTimesTitle">Show Sun Times</string>
+    <string id="ShowSunTimesPrompt">Show the next sunrise or sunset below the date. Requires a recent GPS location.</string>
 </strings>

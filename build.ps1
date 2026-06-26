@@ -3,7 +3,8 @@ param(
     # to build/preview the 416x416 (47mm) variant.
     [string]$Device = "fenix847mm",
     [switch]$Run,
-    [switch]$Export
+    [switch]$Export,
+    [switch]$Test
 )
 
 # Load local build configuration or create default if missing
@@ -43,6 +44,10 @@ if ($Export) {
     Write-Host "Packaging application for Connect IQ Store (.iq)..." -ForegroundColor Cyan
     $outputPath = Join-Path $PSScriptRoot "bin\Sanctuary.iq"
     & $monkeyc -e -f $junglePath -o $outputPath -y $keyPath
+} elseif ($Test) {
+    Write-Host "Building unit-test image for device: $Device..." -ForegroundColor Cyan
+    $outputPath = Join-Path $PSScriptRoot "bin\Sanctuary.prg"
+    & $monkeyc -f $junglePath -o $outputPath -y $keyPath -d $Device --unit-test
 } else {
     Write-Host "Building for device: $Device..." -ForegroundColor Cyan
     $outputPath = Join-Path $PSScriptRoot "bin\Sanctuary.prg"
@@ -60,8 +65,8 @@ if ($Export) {
     Write-Host "Build Succeeded! Output: bin\Sanctuary.prg" -ForegroundColor Green
 }
 
-# 5. Launch in Simulator if requested
-if ($Run) {
+# 5. Launch in Simulator if requested (also used to run the unit tests)
+if ($Run -or $Test) {
     Write-Host "Checking if Simulator is running..." -ForegroundColor Cyan
     $simProcess = Get-Process -Name "simulator" -ErrorAction SilentlyContinue
     if (!$simProcess) {
@@ -73,7 +78,12 @@ if ($Run) {
         Write-Host "Simulator is already running." -ForegroundColor Cyan
     }
 
-    Write-Host "Deploying to $Device in simulator..." -ForegroundColor Cyan
     $monkeydo = Join-Path $sdkBin "monkeydo.bat"
-    & $monkeydo $outputPath $Device
+    if ($Test) {
+        Write-Host "Running unit tests on $Device..." -ForegroundColor Cyan
+        & $monkeydo $outputPath $Device /t
+    } else {
+        Write-Host "Deploying to $Device in simulator..." -ForegroundColor Cyan
+        & $monkeydo $outputPath $Device
+    }
 }

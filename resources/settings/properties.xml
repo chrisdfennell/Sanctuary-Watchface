@@ -4,4 +4,17 @@
 
     <!-- Steps that equal a full XP bar. 0 = use ActivityMonitor's own step goal. -->
     <property id="StepGoalOverride" type="number">0</property>
+
+    <!-- Show the current heart rate between the two orbs. -->
+    <property id="ShowHeartRate" type="boolean">true</property>
+
+    <!-- Show notification / alarm / phone / DND indicators above the time. -->
+    <property id="ShowStatusIcons" type="boolean">true</property>
+
+    <!-- Metric filling each orb: 0=Body Battery, 1=Device Battery, 2=Steps, 3=Stress. -->
+    <property id="LeftGlobeMetric" type="number">0</property>
+    <property id="RightGlobeMetric" type="number">1</property>
+
+    <!-- Show the next sunrise/sunset (needs a known GPS location). -->
+    <property id="ShowSunTimes" type="boolean">true</property>
 </properties>

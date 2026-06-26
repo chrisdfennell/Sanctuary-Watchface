@@ -32,7 +32,7 @@ BASE_RES = 454
 FONTS = [
     {"name": "exocet_time",  "ttf": "ExocetHeavy.ttf", "size": 96, "chars": DIGITS + ":"},
     {"name": "exocet_value", "ttf": "ExocetHeavy.ttf", "size": 42, "chars": DIGITS + "%-"},
-    {"name": "exocet_label", "ttf": "ExocetLight.ttf", "size": 27, "chars": ALPHA + DIGITS + " ,."},
+    {"name": "exocet_label", "ttf": "ExocetLight.ttf", "size": 27, "chars": ALPHA + DIGITS + " ,.:"},
 ]
 
 # Each target panel and where its font set lives.
